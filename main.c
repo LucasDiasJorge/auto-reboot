@@ -8,6 +8,7 @@ int main() {
     struct tm *timeinfo;
     int reboot_hour = 20;
     int reboot_minute = 30;
+    int seconds_to_wait;
 
     while (1) {
         time(&now);
@@ -20,7 +21,14 @@ int main() {
             return 0;
         }
 
-        sleep(60);  // wait 1 minute before checking the time again
+        // Calculate the number of seconds until the next check
+        seconds_to_wait = 60 - timeinfo->tm_sec;
+        if (timeinfo->tm_min == reboot_minute - 1) {
+            // Adjust if we are within a minute of the reboot time
+            seconds_to_wait += 60 * ((reboot_minute - timeinfo->tm_min) % 60);
+        }
+
+        sleep(seconds_to_wait);  // sleep for the calculated duration
     }
 
     return 0;
